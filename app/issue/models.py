@@ -32,16 +32,3 @@ class Comment(models.Model):
     class Meta:
         ordering = ["id"]
         db_table = "comment"
-
-
-# - Create a bug. A bug should have a title, a body, and a status (resolved/unresolved).
-# - Edit a bug.
-# - Delete a bug.
-# - View all bugs.
-# - View a specific bug.
-# - Add a comment to a bug. A comment should have a title, and a body.
-# - Delete a comment from a bug.
-# - Mark a bug as "resolved".
-# - Mark a bug as "unresolved".
-# - View all bugs marked as "resolved".
-# - Assign the bug to a user. A user is identified by its ID.
