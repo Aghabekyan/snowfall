@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 from helpers.choices import StatusType
-from issue.models import Bug
+from issue.models import Bug, Comment
 from issue.serializers import BugSerializer
 from model_bakery import baker
 from rest_framework import status
@@ -24,6 +24,10 @@ class BugTestCase(TestCase):
             "issues-bugs": (lambda x=None: reverse("issues:bugs", args=x)),
             "issues-bug-details": (
                 lambda x=None: reverse("issues:bug-details", args=x)
+            ),
+            "issues-comments": (lambda x=None: reverse("issues:comments", args=x)),
+            "issues-comment-details": (
+                lambda x=None: reverse("issues:comment-details", args=x)
             ),
         }
 
@@ -48,6 +52,12 @@ class BugTestCase(TestCase):
         self.assertEqual(resp.json()["count"], 1)
         data = BugSerializer(unresolved_bug).data
         self.assertDictEqual(resp.json()["results"][0], data)
+
+    def test_create_bug_ok(self):
+        endpoint = self.endpoints.get("issues-bugs")()
+        data = {"title": "title", "body": "body"}
+        resp = self.client.post(endpoint, data=data, content_type=self.APPLICATION_JSON)
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
     def test_get_bug_details_ok(self):
         bug = baker.make(Bug)
@@ -76,5 +86,18 @@ class BugTestCase(TestCase):
         bug.refresh_from_db()
         self.assertEqual(bug.is_deleted, True)
 
+    def test_create_bug_comment_ok(self):
+        bug = baker.make(Bug, is_deleted=False)
+        endpoint = self.endpoints.get("issues-comments")()
+        data = {"title": "title", "body": "body", "bug_id": bug.id}
+        resp = self.client.post(endpoint, data=data, content_type=self.APPLICATION_JSON)
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
-# etc.....
+    def test_delete_bug_comment_ok(self):
+        bug = baker.make(Bug, is_deleted=False)
+        comment = baker.make(Comment, bug=bug, is_deleted=False)
+        endpoint = self.endpoints.get("issues-comment-details")([comment.id])
+        resp = self.client.delete(endpoint, content_type=self.APPLICATION_JSON)
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        comment.refresh_from_db()
+        self.assertEqual(comment.is_deleted, True)
