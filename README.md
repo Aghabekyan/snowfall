@@ -14,6 +14,7 @@ Clone or download the project. Go to the backend directory and run the following
 ```
 docker-compose pull
 docker-compose build
+make migrate
 docker-compose up
 the application running on 127.0.0.1:8181
 ```
