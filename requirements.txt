@@ -1,0 +1,10 @@
+django==3.1.2
+flake8==3.9.0
+gunicorn==20.1.0
+django-filter==2.4.0
+djangorestframework==3.11.0
+psycopg2-binary==2.8.6
+isort==5.9.2
+black==21.7b0
+model-bakery==1.2.1
+drf-spectacular==0.17.2

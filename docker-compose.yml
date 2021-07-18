@@ -1,0 +1,34 @@
+version: '3.7'
+
+services:
+  postgres:
+    image: kartoza/postgis:11.5-2.5
+    container_name: postgres-issue-tracker
+    restart: always
+    environment:
+      - POSTGRES_USER=issue_tracker
+      - POSTGRES_PASSWORD=pass111
+      - POSTGRES_DB=issue_tracker_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "5455:5432"
+
+  issue_tracker:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: issue_tracker
+    container_name: issue_tracker
+    command: /usr/local/bin/gunicorn issue_tracker.wsgi -w 1 -b 0.0.0.0:8000 -t 0 --reload
+    env_file:
+      - .env
+    ports:
+      - "8181:8000"
+    volumes:
+      - ./app:/app
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
